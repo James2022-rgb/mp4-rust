@@ -51,46 +51,6 @@ impl Default for TkhdBox {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
-pub struct Matrix {
-    pub a: i32,
-    pub b: i32,
-    pub u: i32,
-    pub c: i32,
-    pub d: i32,
-    pub v: i32,
-    pub x: i32,
-    pub y: i32,
-    pub w: i32,
-}
-
-impl std::fmt::Display for Matrix {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "{:#x} {:#x} {:#x} {:#x} {:#x} {:#x} {:#x} {:#x} {:#x}",
-            self.a, self.b, self.u, self.c, self.d, self.v, self.x, self.y, self.w
-        )
-    }
-}
-
-impl Default for Matrix {
-    fn default() -> Self {
-        Self {
-            // unity matrix according to ISO/IEC 14496-12:2005(E)
-            a: 0x00010000,
-            b: 0,
-            u: 0,
-            c: 0,
-            d: 0x00010000,
-            v: 0,
-            x: 0,
-            y: 0,
-            w: 0x40000000,
-        }
-    }
-}
-
 impl TkhdBox {
     pub fn get_type(&self) -> BoxType {
         BoxType::TkhdBox

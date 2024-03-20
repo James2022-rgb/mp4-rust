@@ -18,7 +18,7 @@ pub struct MvhdBox {
     #[serde(with = "value_u8")]
     pub volume: FixedPointU8,
 
-    pub matrix: tkhd::Matrix,
+    pub matrix: types::Matrix,
 
     pub next_track_id: u32,
 }
@@ -50,7 +50,7 @@ impl Default for MvhdBox {
             timescale: 1000,
             duration: 0,
             rate: FixedPointU16::new(1),
-            matrix: tkhd::Matrix::default(),
+            matrix: types::Matrix::default(),
             volume: FixedPointU8::new(1),
             next_track_id: 1,
         }
@@ -116,7 +116,7 @@ impl<R: Read + Seek> ReadBox<&mut R> for MvhdBox {
 
         reader.read_u64::<BigEndian>()?; // reserved = 0
 
-        let matrix = tkhd::Matrix {
+        let matrix = types::Matrix {
             a: reader.read_i32::<BigEndian>()?,
             b: reader.read_i32::<BigEndian>()?,
             u: reader.read_i32::<BigEndian>()?,
@@ -212,7 +212,7 @@ mod tests {
             duration: 634634,
             rate: FixedPointU16::new(1),
             volume: FixedPointU8::new(1),
-            matrix: tkhd::Matrix::default(),
+            matrix: types::Matrix::default(),
             next_track_id: 1,
         };
         let mut buf = Vec::new();
@@ -239,7 +239,7 @@ mod tests {
             duration: 634634,
             rate: FixedPointU16::new(1),
             volume: FixedPointU8::new(1),
-            matrix: tkhd::Matrix::default(),
+            matrix: types::Matrix::default(),
             next_track_id: 1,
         };
         let mut buf = Vec::new();
