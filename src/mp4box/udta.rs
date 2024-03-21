@@ -3,12 +3,15 @@ use std::io::{Read, Seek};
 use serde::Serialize;
 
 use crate::mp4box::meta::MetaBox;
+use crate::mp4box::cxyz::CxyzBox;
 use crate::mp4box::*;
 
 #[derive(Debug, Clone, PartialEq, Eq, Default, Serialize)]
 pub struct UdtaBox {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<MetaBox>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub cxyz: Option<CxyzBox>,
 }
 
 impl UdtaBox {
@@ -20,6 +23,9 @@ impl UdtaBox {
         let mut size = HEADER_SIZE;
         if let Some(meta) = &self.meta {
             size += meta.box_size();
+        }
+        if let Some(cxyz) = &self.cxyz {
+            size += cxyz.box_size();
         }
         size
     }
@@ -48,6 +54,7 @@ impl<R: Read + Seek> ReadBox<&mut R> for UdtaBox {
         let start = box_start(reader)?;
 
         let mut meta = None;
+        let mut cxyz = None;
 
         let mut current = reader.stream_position()?;
         let end = start + size;
@@ -65,6 +72,9 @@ impl<R: Read + Seek> ReadBox<&mut R> for UdtaBox {
                 BoxType::MetaBox => {
                     meta = Some(MetaBox::read_box(reader, s)?);
                 }
+                BoxType::CxyzBox => {
+                    cxyz = Some(CxyzBox::read_box(reader, s)?);
+                }
                 _ => {
                     // XXX warn!()
                     skip_box(reader, s)?;
@@ -76,7 +86,10 @@ impl<R: Read + Seek> ReadBox<&mut R> for UdtaBox {
 
         skip_bytes_to(reader, start + size)?;
 
-        Ok(UdtaBox { meta })
+        Ok(UdtaBox {
+            meta,
+            cxyz,
+         })
     }
 }
 
@@ -87,6 +100,9 @@ impl<W: Write> WriteBox<&mut W> for UdtaBox {
 
         if let Some(meta) = &self.meta {
             meta.write_box(writer)?;
+        }
+        if let Some(cxyz) = &self.cxyz {
+            cxyz.write_box(writer)?;
         }
         Ok(size)
     }
@@ -100,7 +116,10 @@ mod tests {
 
     #[test]
     fn test_udta_empty() {
-        let src_box = UdtaBox { meta: None };
+        let src_box = UdtaBox {
+            meta: None,
+            cxyz: None,
+        };
 
         let mut buf = Vec::new();
         src_box.write_box(&mut buf).unwrap();
@@ -119,6 +138,10 @@ mod tests {
     fn test_udta() {
         let src_box = UdtaBox {
             meta: Some(MetaBox::default()),
+            cxyz: Some(CxyzBox {
+                language_code: 0x15c7,
+                text: "+41.3758+002.1492/".to_owned(),
+            }),
         };
 
         let mut buf = Vec::new();

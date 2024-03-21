@@ -17,6 +17,7 @@
 //!         meta
 //!             ilst
 //!                 data
+//!         ©xyz
 //!     trak
 //!         tkhd
 //!         mdia
@@ -65,6 +66,7 @@ use crate::*;
 pub(crate) mod avc1;
 pub(crate) mod co64;
 pub(crate) mod ctts;
+pub(crate) mod cxyz;
 pub(crate) mod data;
 pub(crate) mod dinf;
 pub(crate) mod edts;
@@ -110,6 +112,7 @@ pub(crate) mod vpcc;
 pub use avc1::Avc1Box;
 pub use co64::Co64Box;
 pub use ctts::CttsBox;
+pub use cxyz::CxyzBox;
 pub use data::DataBox;
 pub use dinf::DinfBox;
 pub use edts::EdtsBox;
@@ -240,7 +243,8 @@ boxtype! {
     CovrBox => 0x636f7672,
     DescBox => 0x64657363,
     WideBox => 0x77696465,
-    WaveBox => 0x77617665
+    WaveBox => 0x77617665,
+    CxyzBox => 0xA978797A
 }
 
 pub trait Mp4Box: Sized {
