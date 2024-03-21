@@ -73,6 +73,7 @@ pub(crate) mod edts;
 pub(crate) mod elst;
 pub(crate) mod emsg;
 pub(crate) mod ftyp;
+pub(crate) mod gpmf;
 pub(crate) mod hdlr;
 pub(crate) mod hev1;
 pub(crate) mod hvc1;
@@ -119,6 +120,7 @@ pub use edts::EdtsBox;
 pub use elst::ElstBox;
 pub use emsg::EmsgBox;
 pub use ftyp::FtypBox;
+pub use gpmf::GpmfBox;
 pub use hdlr::HdlrBox;
 pub use hev1::Hev1Box;
 pub use ilst::IlstBox;
@@ -244,7 +246,8 @@ boxtype! {
     DescBox => 0x64657363,
     WideBox => 0x77696465,
     WaveBox => 0x77617665,
-    CxyzBox => 0xA978797A
+    CxyzBox => 0xA978797A,
+    GpmfBox => 0x47504D46
 }
 
 pub trait Mp4Box: Sized {

@@ -4,6 +4,7 @@ use serde::Serialize;
 
 use crate::mp4box::meta::MetaBox;
 use crate::mp4box::cxyz::CxyzBox;
+use crate::mp4box::gpmf::GpmfBox;
 use crate::mp4box::*;
 
 #[derive(Debug, Clone, PartialEq, Eq, Default, Serialize)]
@@ -12,6 +13,8 @@ pub struct UdtaBox {
     pub meta: Option<MetaBox>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub cxyz: Option<CxyzBox>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub gpmf: Option<GpmfBox>,
 }
 
 impl UdtaBox {
@@ -26,6 +29,9 @@ impl UdtaBox {
         }
         if let Some(cxyz) = &self.cxyz {
             size += cxyz.box_size();
+        }
+        if let Some(gpmf) = &self.gpmf {
+            size += gpmf.box_size();
         }
         size
     }
@@ -55,6 +61,7 @@ impl<R: Read + Seek> ReadBox<&mut R> for UdtaBox {
 
         let mut meta = None;
         let mut cxyz = None;
+        let mut gpmf = None;
 
         let mut current = reader.stream_position()?;
         let end = start + size;
@@ -75,6 +82,9 @@ impl<R: Read + Seek> ReadBox<&mut R> for UdtaBox {
                 BoxType::CxyzBox => {
                     cxyz = Some(CxyzBox::read_box(reader, s)?);
                 }
+                BoxType::GpmfBox => {
+                    gpmf = Some(GpmfBox::read_box(reader, s)?);
+                }
                 _ => {
                     // XXX warn!()
                     skip_box(reader, s)?;
@@ -89,6 +99,7 @@ impl<R: Read + Seek> ReadBox<&mut R> for UdtaBox {
         Ok(UdtaBox {
             meta,
             cxyz,
+            gpmf,
          })
     }
 }
@@ -103,6 +114,9 @@ impl<W: Write> WriteBox<&mut W> for UdtaBox {
         }
         if let Some(cxyz) = &self.cxyz {
             cxyz.write_box(writer)?;
+        }
+        if let Some(gpmf) = &self.gpmf {
+            gpmf.write_box(writer)?;
         }
         Ok(size)
     }
@@ -119,6 +133,7 @@ mod tests {
         let src_box = UdtaBox {
             meta: None,
             cxyz: None,
+            gpmf: None,
         };
 
         let mut buf = Vec::new();
@@ -141,6 +156,9 @@ mod tests {
             cxyz: Some(CxyzBox {
                 language_code: 0x15c7,
                 text: "+41.3758+002.1492/".to_owned(),
+            }),
+            gpmf: Some(GpmfBox {
+                data: vec![0x01, 0x02, 0x03, 0x04],
             }),
         };
 
